@@ -4,6 +4,9 @@ import { onMounted, ref } from 'vue';
 import type { Schema } from '../../amplify/data/resource';
 import { generateClient } from 'aws-amplify/data';
 
+import { Authenticator } from "@aws-amplify/ui-vue";
+import "@aws-amplify/ui-vue/styles.css";
+
 const client = generateClient<Schema>();
 
 // create a reactive reference to the array of todos
@@ -25,6 +28,13 @@ function createTodo() {
     listTodos();
   });
 }
+
+function deleteTodo(id: string){
+  client.models.Todo.delete({ id }).then(() => {
+    
+    listTodos();
+  });
+}
     
 // fetch todos when the component is mounted
  onMounted(() => {
@@ -35,15 +45,18 @@ function createTodo() {
 
 <template>
   <main>
+    <Authenticator>
+      <template v-slot="{ signOut }">
     <h1>My todos</h1>
     <button @click="createTodo">+ new</button>
     <ul>
-      <li 
+      <li   @click="() => deleteTodo(todo.id)"
         v-for="todo in todos" 
         :key="todo.id">
         {{ todo.content }}
       </li>
     </ul>
+    <button @click="signOut">Cerrar Session</button>
     <div>
       🥳 App successfully hosted. Try creating a new todo.
       <br />
@@ -51,5 +64,7 @@ function createTodo() {
         Review next steps of this tutorial.
       </a>
     </div>
+  </template>
+    </Authenticator>
   </main>
 </template>
